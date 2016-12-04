@@ -3,11 +3,11 @@ class OptOnMysql(object):
 
     def __init__(self):
         self.db_host = ''
-        self.db_user = '' 
+        self.db_user = ''
         self.db_passowrd = ''
         self.db_name = ''
         # self.conn = ''
-        # self.cur = ''
+        # self.cur = '' 
         # self.db_opt_blog_unit = ''
         #-----------------********************-----------------#
     def connect2Mysql(self, db_host, db_user, db_passowrd, db_name):

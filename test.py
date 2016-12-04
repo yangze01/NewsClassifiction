@@ -1,4 +1,12 @@
-#! /usr/bin/env python
 #coding=utf-8
-import scrapy
- 
+import pymysql
+import sys
+from NewsUnit import *
+reload(sys)
+sys.setdefaultencoding('utf8')
+a = tuple([123])
+
+if a:
+    print(a)
+else:
+    print(123)
