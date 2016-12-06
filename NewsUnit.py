@@ -7,8 +7,8 @@ class NewsUnit(object):
 
     def __init__(self):
         self.news_unit={
-            "id":"",
-            "class":"",
+            "_id":"",
+            "category":"",
             "title":"",
             "content":"",
             "time":""

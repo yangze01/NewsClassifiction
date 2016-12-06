@@ -1,48 +1,17 @@
 #coding=utf-8
 import pymysql
-import sys
+from optOnMysql import *
 from NewsUnit import *
+import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
-class OptOnMysql(object):
-
-    def __init__(self):
-        self.db_host = "localhost"
-        self.db_user = "root"
-        self.db_passowrd = "1234"
-        self.db_name = "sina_news"
-        try:
-            self.conn = pymysql.connect(host=self.db_host,user=self.db_user,passwd=self.db_passowrd,db=self.db_name,charset='utf8')
-            self.cur = self.conn.cursor()
-            print("connect %s %s success"%(self.conn,self.cur))
-        except:
-            print("connect %s %s fail"%(self.conn,self.cur))
-        #-----------------********************-----------------#
-    def exeUpdate(self,sql):
-        sta = self.cur.execute(sql)
-        self.conn.commit()
-        return (sta)
-
-    def exeDeleteById(self,sql,ID):
-        sta = 0
-        sta = self.cur.execute(sql%(int(ID)))
-        return(sta)
-
-    def exeQuery(self,sql):
-        self.cur.execute(sql)
-        return(self.cur)
-
-    def connClose(self):
-        self.cur.close()
-        self.conn.close()
-
 
 class NewsOnMysql(object):
     def __init__(self):
         self.opt_OnMySql = OptOnMysql()
 
     def findById(self,id):
-        cur = self.opt_OnMySql.exeQuery("select * from news where id = %d"%int(id))
+        cur = self.opt_OnMySql.exeQuery("select * from news where _id = %d"%int(id))
         it = cur.fetchone()
         # print(it)
         if it == None:
@@ -51,13 +20,6 @@ class NewsOnMysql(object):
         else:
             print(it)
             return it
-        # len_it = len(it)
-        # if len_it==0:
-        #     print("there is nothing found.")
-        #     return 0
-        # else:
-        #     print(it)
-        #     return 1
 
     def findall(self):
         cur = self.opt_OnMySql.exeQuery("select * from news")
@@ -80,9 +42,10 @@ class NewsOnMysql(object):
                 num of insert news
         '''
         # self.opt.db_user_unit.news_unit = news_unit
-        sta = self.opt_OnMySql.exeUpdate("insert into news (id,title,content,time)values\
-        (%d"%(int(news_unit["id"]))+",'"+news_unit["title"]+"','"+news_unit["content"]+"','"+news_unit["time"]+"')")
-        if sta == 0:
+        sta = self.opt_OnMySql.exeUpdate("insert into news (_id,title,content,time,category)values\
+         (%s"%(news_unit["_id"])+",'"+news_unit["title"]+"','"+news_unit["content"]+"','"+news_unit["time"]+"','"+news_unit["category"]+"')")
+
+        if sta == 1:
             print("insert success!")
         else:
             print("insert failed!")
@@ -99,16 +62,19 @@ class NewsOnMysql(object):
             sta += self.deleteById(eachID)
         return sta
 
-
     def connClose(self):
         self.opt_OnMySql.connClose()
 
 if __name__ == "__main__":
     news_unit = dict()
-    news_unit["id"] = 3
+    news_unit["_id"] = '4'
     news_unit["title"] = "今日说法"
     news_unit["content"] = "这是一个测试"
     news_unit["time"] = "20161202"
+    news_unit["category"] = "金融"
     opt = NewsOnMysql()
-    opt.findall()
+    opt.insertOneNews(news_unit)
+    # a = opt.findall()
+    # for i in a :
+        # print(i)
     opt.connClose()

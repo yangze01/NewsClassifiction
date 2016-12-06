@@ -1,38 +1,44 @@
+#coding=utf-8
 import pymysql
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 class OptOnMysql(object):
 
     def __init__(self):
-        self.db_host = ''
-        self.db_user = ''
-        self.db_passowrd = ''
-        self.db_name = ''
-        # self.conn = ''
-        # self.cur = '' 
-        # self.db_opt_blog_unit = ''
-        #-----------------********************-----------------#
-    def connect2Mysql(self, db_host, db_user, db_passowrd, db_name):
-        self.db_host = db_host
-        self.db_user = db_user
-        self.db_passowrd = db_passowrd
-        self.db_name = db_name
+        self.db_host = "localhost"
+        self.db_user = "root"
+        self.db_passowrd = "1234"
+        self.db_name = "sina_news"
         try:
-            self.conn = pymysql.connect(host=self.db_host,user=self.db_user,passwd=self.db_passowrd,db=self.db_name)
+            self.conn = pymysql.connect(host=self.db_host,user=self.db_user,passwd=self.db_passowrd,db=self.db_name,charset='utf8')
             self.cur = self.conn.cursor()
-            print("connect %s %s success!!"%(self.conn,self.cur))
-            # print(conn,cur)
-            return 1
-        except :
-            print("connect failure!!"%(self.conn,self.cur))
-            return 0
+            print("connect %s %s success"%(self.conn,self.cur))
+        except:
+            print("connect %s %s fail"%(self.conn,self.cur))
+        #-----------------********************-----------------#
+    def exeUpdate(self,sql):
+        sta = self.cur.execute(sql)
+        self.conn.commit()
+        return (sta)
 
-    def test_find(self,time):
-        alllist =  self.cur.execute("select * from news where time = %s"%time)
-        return alllist
+    def exeDeleteById(self,sql,ID):
+        sta = 0
+        sta = self.cur.execute(sql%(int(ID)))
+        return(sta)
+
+    def exeQuery(self,sql):
+        self.cur.execute(sql)
+        return(self.cur)
+
+    def connClose(self):
+        self.cur.close()
+        self.conn.close()
+
 if __name__ == "__main__":
-    db_host = "localhost"
-    db_user = "root"
-    db_passowrd = "1234"
-    db_name = "sina_news"
+
     opt_connect = OptOnMysql()
-    test = opt_connect.test_find("20161202")
-    print(test)
+    test = opt_connect.exeQuery("select * from news")
+    for i in test:
+        print(i[1])
