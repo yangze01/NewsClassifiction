@@ -8,5 +8,6 @@ class SegsUnit(object):
         self.segs_unit={
             "_id":"",
             "segments":"",
+            "segtitle":"",
             "category":""
         }
