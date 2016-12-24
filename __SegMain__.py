@@ -59,23 +59,23 @@ def save2file():
     i = 0
     for seg_seg in seg_iter:
         print(i)
-        print(seg_seg[2])
-        title_courpus_list.append(seg_seg[1].encode('utf8').split(','))
+        # print(seg_seg[2])
+        title_courpus_list.append(seg_seg[2].encode('utf8').split(','))
         # id_list.append(seg_seg[0])
-        # corpus.append(seg_seg[1].encode('utf8').split(','))
+        corpus.append(seg_seg[1].encode('utf8').split(','))
         # cate_list.append(seg_seg[3])
         i = i + 1
     opt.connClose()
     # print(cate_list)
     save2json(title_file,title_courpus_list)
     # save2json(cate_file,cate_list)
-    # save2json(corpus_file,corpus)
+    save2json(corpus_file,corpus)
     # save2json(id_file,id_list)
     # corpus = get_json_data(corpus_file)
     # print(corpus[9])
 
 if __name__ == "__main__":
-    # save2file()
+    save2file()
     # segMain(0)
     # title_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\title_courpus.json"
     # a = get_json_data(title_file)[0]
