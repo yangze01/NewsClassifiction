@@ -31,7 +31,9 @@ def train():
     title_sentences = get_json_data(title_courpus_file)
     id_list = get_json_data(id_file)[0:]
     model = gensim.models.Word2Vec(title_sentences, size=300, window=5, min_count=1, workers=20)
+    model1 = gensim.models.Word2Vec(title_sentences, size=300, window=5, min_count=1, workers=20)
     print("complete train")
+    model.save(fname)
     model.save(title_fname)
     print("model reload")
 def load_model():
