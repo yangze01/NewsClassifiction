@@ -7,5 +7,6 @@ class SegsUnit(object):
     def __init__(self):
         self.segs_unit={
             "_id":"",
-            "segments":""
+            "segments":"",
+            "category":""
         }

@@ -50,8 +50,8 @@ class SegsOnMysql(object):
             return 1
         else:
             try:
-                sta = self.opt_OnMySql.exeUpdate("insert into segs (_id,segments,category) values\
-                 ('"+segs_unit["_id"]+"','"+segs_unit["segments"]+"','"+segs_unit["category"]+"')")
+                sta = self.opt_OnMySql.exeUpdate("insert into segs (_id,segments) values\
+                 ('"+segs_unit["_id"]+"','"+segs_unit["segments"]+"')")
                 if sta == 1:
                     print("insert segs success!")
             except:
@@ -84,7 +84,6 @@ if __name__ == "__main__":
     segsunit = SegsUnit().segs_unit
     segsunit["_id"] = "test"
     segsunit["segments"] = "一,二,三,四,五,六,七,八"
-    segsunit["category"] = "财经"
     print(segsunit)
     opt_segs = SegsOnMysql()
     opt_segs.insertOneSegs(segsunit)

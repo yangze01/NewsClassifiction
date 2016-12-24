@@ -15,11 +15,8 @@ import re
 import sys
 import threading
 import os
-
 reload(sys)
 sys.setdefaultencoding('utf8')
-
-
 
 def startmain(num):
     opt_opt = NewsJson('queue.json','visited.json')
@@ -29,11 +26,7 @@ def startmain(num):
         begin_craw = Begin_crawler(str(i))
         begin_craw.start()
 
-
-
-
 def get_url_test():
-
     # opt_opt = NewsJson('queue.json','visited.json')
     # queue = opt_opt.get_queue()
     # visited =opt_opt.get_visited()
@@ -52,7 +45,6 @@ if __name__ == "__main__":
     queue_filename = 'C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\queue.json'
     visited_filename = 'C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\visited.json'
     opt_opt = NewsJson(queue_filename,visited_filename)
-
     threadnum = 1
     queue = opt_opt.get_queue()
     print(len(queue))
