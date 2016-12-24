@@ -7,6 +7,7 @@ import gensim
 from numpy import *
 import sys
 reload(sys)
+BasePath = sys.path[0]
 sys.setdefaultencoding('utf8')
 
 def get_json_data(userdir):
@@ -22,23 +23,23 @@ def save2json(userdir,data2save):
     writef.write(encode_json)
     writef.close()
 def train():
-    corpus_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\courpus.json"
-    title_courpus_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\title_courpus.json"
-    id_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\id_list.json"
-    fname = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\Word2Vec"
-    title_fname = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\title_Word2Vec"
+    corpus_file = BasePath + "/jsonfile/courpus.json"
+    title_courpus_file = BasePath + "/jsonfile/title_courpus.json"
+    id_file = BasePath + "/jsonfile/id_list.json"
+    fname = BasePath + "/jsonfile/Word2Vec"
+    title_fname = BasePath + "/jsonfile/title_Word2Vec"
     sentences = get_json_data(corpus_file)[0:]
     title_sentences = get_json_data(title_courpus_file)
     id_list = get_json_data(id_file)[0:]
-    model = gensim.models.Word2Vec(title_sentences, size=300, window=5, min_count=1, workers=20)
+    # model = gensim.models.Word2Vec(sentences, size=300, window=5, min_count=1, workers=20)
     model1 = gensim.models.Word2Vec(title_sentences, size=300, window=5, min_count=1, workers=20)
     print("complete train")
-    model.save(fname)
-    model.save(title_fname)
+    # model.save(fname)
+    model1.save(title_fname)
     print("model reload")
 def load_model():
-    fname = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\Word2Vec"
-    title_fname = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\\title_Word2Vec"
+    fname = BasePath + "/jsonfile/Word2Vec"
+    title_fname = BasePath + "/jsonfile/title_Word2Vec"
     model = gensim.models.Word2Vec.load(fname)
     return model
 

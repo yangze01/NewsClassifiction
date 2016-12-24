@@ -7,7 +7,7 @@ import json
 import cPickle
 import datetime
 import numpy as np
-# import data_helpers
+import data_helpers
 import tensorflow as tf
 import tensorlayer as  tl
 sys.setdefaultencoding('utf8')
@@ -22,7 +22,7 @@ BasePath = sys.path[0]
 
 # Model Hyperparameters
 tf.flags.DEFINE_string("filter_sizes", "3,4,5", "Comma-separated filter sizes (default: '3,4,5')")
-tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
+tf.flags.DEFINE_integer("num_filters", 10, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.7, "Dropout keep probability (default: 0.5)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.1, "L2 regularizaion lambda (default: 0.0)")
 
@@ -48,10 +48,6 @@ print("")
 print("Loading data...")
 x_train,y_train,x_dev,y_dev=data_helpers.load_train_dev_data()
 
-#Build vocabulary
-max_document_length = max([len(x.split(" ")) for x in x_text])
-vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
-x = np.array(list(vocab_processor.fit_transform(x_text)))
 
 
 # Randomly shuffle data

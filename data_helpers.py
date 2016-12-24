@@ -53,8 +53,8 @@ def load_data_and_labels():
     """
     cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'娱乐':10,'其他':11}
 
-    x_text = get_json_data(BasePath + "/jsonfile/courpus.json")[0:2000]
-    y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2000]
+    x_text = get_json_data(BasePath + "/jsonfile/title_courpus.json")[0:]
+    y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:]
 
     y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
     # TODO y convert to int
@@ -159,15 +159,15 @@ def load_train_dev_data():
     # Load set word
     word_set = load_vocab(x_text)
     # Load word2vec
-    if os.path.exists(BasePath + "/jsonfile/Word2Vec"):
+    if os.path.exists(BasePath + "/jsonfile/title_Word2Vec"):
         # wor2vec_model = cPickle.load(open(BasePath + "/jsonfile/Word2Vec","rb"))
-        fname = BasePath + "/jsonfile/Word2Vec"
+        fname = BasePath + "/jsonfile/title_Word2Vec"
         wor2vec_model = gensim.models.Word2Vec.load(fname)
 
     else:
         wor2vec_model = load_bin_vec(BasePath + "GoogleNews-vectors-negative300.bin", word_set)
         wor2vec_model = add_unknown_words(wor2vec_model, word_set, 300)
-        cPickle.dump(wor2vec_model, open(BasePath + "/jsonfile/Word2Vec", "wb"))
+        cPickle.dump(wor2vec_model, open(BasePath + "/jsonfile/title_Word2Vec", "wb"))
     x = []
     print("~+~+~+~+~+~+~++~+~++~+~+~+~+~+~+~+~+~+")
     print(len(wor2vec_model["股市".decode("utf8")]))
