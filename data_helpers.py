@@ -51,18 +51,20 @@ def load_data_and_labels():
     """
         加载数据和标签
     """
-    cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'娱乐':10,'其他':11}
+    cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'其他':10}
 
     x_text = get_json_data(BasePath + "/jsonfile/title_courpus.json")[0:]
     y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:]
-
-    y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
-    # TODO y convert to int
-    print("_________________________________________________")
-    print(type(x_text),type(np.array(y)))
-    print("-------------------------------------------------")
+    y = list()
+    tmp_y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
+    for tmp_num in tmp_y:
+        tmp = np.zeros(12)
+        tmp[tmp_num] = 1
+        # print(tmp)
+        y.append(tmp)
 
     return [x_text,np.array(y)]
+
 
 def load_vocab(sen_word):
     vocab = []
@@ -142,6 +144,24 @@ def batch_iter(data,batch_size, num_epochs, shuffle = True):
             end_index = min((batch_num + 1) * batch_size, data_size)
             yield shuffled_data[start_index:end_index] # yield
 
+def get_predict_data():
+    """
+        加载数据和标签
+    """
+    cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'其他':10}
+
+    x_text = get_json_data(BasePath + "/jsonfile/title_courpus.json")[0:2]
+    y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2]
+    y = list()
+    tmp_y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
+    for tmp_num in tmp_y:
+        tmp = np.zeros(12)
+        tmp[tmp_num] = 1
+        # print(tmp)
+        y.append(tmp)
+
+    return [x_text,np.array(y)]
+
 def load_train_dev_data():
     print("Loading data...")
     x_text,y = load_data_and_labels()
@@ -152,10 +172,9 @@ def load_train_dev_data():
     print(type(x_text[0]))
     x_text = x_text[shuffle_indices]
     y_shuffled = y[shuffle_indices]
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print(type(x_text[0]))
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
     max_sentence_length = max([len(x) for x in x_text])
+    print("_________________max_sentence_length_________________________")
+    print(max_sentence_length)
     # Load set word
     word_set = load_vocab(x_text)
     # Load word2vec
@@ -163,37 +182,23 @@ def load_train_dev_data():
         # wor2vec_model = cPickle.load(open(BasePath + "/jsonfile/Word2Vec","rb"))
         fname = BasePath + "/jsonfile/title_Word2Vec"
         wor2vec_model = gensim.models.Word2Vec.load(fname)
+        wor2vec_model = add_unknown_words(wor2vec_model, word_set, 300)
 
     else:
         wor2vec_model = load_bin_vec(BasePath + "GoogleNews-vectors-negative300.bin", word_set)
         wor2vec_model = add_unknown_words(wor2vec_model, word_set, 300)
         cPickle.dump(wor2vec_model, open(BasePath + "/jsonfile/title_Word2Vec", "wb"))
     x = []
-    print("~+~+~+~+~+~+~++~+~++~+~+~+~+~+~+~+~+~+")
-    print(len(wor2vec_model["股市".decode("utf8")]))
-    print("~+~+~+~+~+~+~++~+~++~+~+~+~+~+~+~+~+~+")
     for words in x_text:
-        # words = ste.split()
-        # print(words)
-        # words = words[0:2]
-        # print(words)
         l = len(words)
-
         sentence = []
         for i, word in enumerate(words):
-            # print(word)
             sentence.append(wor2vec_model[word])
-
         zeros_list = [0] * 300
-
         for j in range(max_sentence_length - i - 1):
             sentence.append(zeros_list)
         x.append(sentence)
-    print(len(sentence[0]))
-    print("typetypetypetypetypetypetypetypetypetypetypetypetypetypetypetypetypetype")
-    print(type(x))
     x = np.array(x)
-
     # Split train/test set
     # TODO: This is very crude, should use cross-validation
 
@@ -213,10 +218,14 @@ def load_train_dev_data():
 if __name__ == "__main__":
     # positive_examples = list(open(BasePath + "/jsonfile/courpus.json", "r").readlines())
 
-    # x_text = get_json_data(BasePath + "/jsonfile/courpus.json")[0]
-    # y = get_json_data(BasePath + "/jsonfile/cate_list.json")[0]
-    # print(x_text)
+    x_text = get_json_data(BasePath + "/jsonfile/courpus.json")[0:2]
+    y = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2]
+    # print(type(x_text))
+    # print(type(y))
     # print(cate_dict[y.encode('utf8')])
 
-    x_train,y_train,x_dev,y_dev = load_train_dev_data()
+    get_predict_data(x_text,y)
+    # x_train,y_train,x_dev,y_dev = load_train_dev_data()
+    # print(x_train[0])
+    # print(y_train[0])
     # print(type(x_train[0][1]))

@@ -45,12 +45,19 @@ def load_model():
 
 
 if __name__ == "__main__":
-    train()
+    # train()
+
     # corpus_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\courpus.json"
     # id_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\id_list.json"
-    # cate_file = "C:\Users\john\Desktop\spider\NewsClassifiction\jsonfile\cate_list.json"
+    cate_file = BasePath + "/jsonfile/cate_list.json"
+    cate = set()
+    cate_list = get_json_data(cate_file)
+    for i in cate_list:
+        cate.add(i)
+    for j in cate:
+        print(j)
     # feature_list = list()
-    # cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'娱乐':10,'其他':11}
+    # cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'其他':10}
     # model = load_model()
     # print(type(model["美股".decode('utf8')]))
     # f = open('C:\Users\john\Desktop\spider\NewsClassifiction\\train.txt','w')

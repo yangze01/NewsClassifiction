@@ -98,7 +98,7 @@ class Model(object):
         with tf.name_scope("loss"):
             losses=tf.nn.softmax_cross_entropy_with_logits(self.scores,self.input_y)
             self.loss=tf.reduce_mean(losses)+tf.minimum(l2_reg_lambda*l2_loss,3)
-        
+
         # Accuracy
         with tf.name_scope("accuracy"):
             correct_predictions = tf.equal(self.predictions, tf.argmax(self.input_y, 1))

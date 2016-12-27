@@ -2,16 +2,16 @@
 from __future__ import division
 import sys
 import math
-import numpy
+import numpy as np
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 if __name__ == "__main__":
-    a = [1,2,3,4,5,6]
-    for i in range(len(a)):
-        print(i)
-
-
+    a = [0,0,0,1,0,0]
+    b = np.array(a)
+    print(b)
+    c = np.argmax(b)
+    print(c)
 
 
 
