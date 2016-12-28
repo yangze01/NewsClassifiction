@@ -37,6 +37,7 @@ tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
+
 # Misc Parameters
 tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device placement")
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
@@ -71,6 +72,7 @@ x_train,y_train,x_dev,y_dev=data_helpers.load_train_dev_data()
 # print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
 # Training
 # ==================================================
+
 with tf.Graph().as_default():
     session_conf = tf.ConfigProto(
       allow_soft_placement=FLAGS.allow_soft_placement,
@@ -79,13 +81,13 @@ with tf.Graph().as_default():
     with sess.as_default():
         cnn = Model(
             sequence_length=x_train.shape[1],
-            num_classes= y_train.shape[1],
-            embedding_size=x_train.shape[2],
-            filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
-            num_filters=FLAGS.num_filters,
-            dropout_keep_prob=FLAGS.dropout_keep_prob,
-            l2_reg_lambda=FLAGS.l2_reg_lambda,
-            hidden_unit=64
+            num_classes = y_train.shape[1],
+            embedding_size = x_train.shape[2],
+            filter_sizes = list(map(int, FLAGS.filter_sizes.split(","))),
+            num_filters = FLAGS.num_filters,
+            dropout_keep_prob = FLAGS.dropout_keep_prob,
+            l2_reg_lambda = FLAGS.l2_reg_lambda,
+            hidden_unit = 64
         )
 
         # Define Training procedure
@@ -164,7 +166,7 @@ with tf.Graph().as_default():
             feed_dict = {
               cnn.input_x: x_batch,
               cnn.input_y: y_batch,
-              cnn.pad:pad
+              cnn.pad: pad
               # cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
             }
             # enable noise layers
@@ -189,7 +191,7 @@ with tf.Graph().as_default():
             feed_dict = {
               cnn.input_x: x_batch,
               cnn.input_y: y_batch,
-              cnn.pad:pad
+              cnn.pad: pad
               # cnn.dropout_keep_prob: FLAGS.dropout_keep_prob
             }
             feed_dict.update(dp_dict)

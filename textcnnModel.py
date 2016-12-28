@@ -27,6 +27,7 @@ class Model(object):
         num_filters – The number of filters per filter size (see above).
         dropout_keep_prob – The keep_prob of DropoutLayer
         """
+
         self.input_x=tf.placeholder(tf.float32,[None,sequence_length,embedding_size],name="input_x")
         self.input_y=tf.placeholder(tf.float32,[None,num_classes],name="input_y")
         # self.dropout_keep_prob=tf.placeholder(tf.float32,name="dropout_keep_prob")
@@ -38,8 +39,10 @@ class Model(object):
         self.padnetwork=tl.layers.InputLayer(inputs=self.pad, name='padlayer')
         #Inserts a dimension of 1 into a tensor's shape
         network.outputs=tf.expand_dims(network.outputs,-1)
+
+
         # Create a convolution + maxpool layer for each filter size
-        pooled_outputs_network = []
+        pooled_outputs = []
         sl=[]
         for i,filter_size in enumerate(filter_sizes):
             with tf.name_scope("conv-maxpool-%s" % filter_size):
@@ -67,10 +70,10 @@ class Model(object):
                                                 name="pool-%s" % filter_size
                                                 )
                 poolnetwork2=tl.layers.ReshapeLayer(poolnetwork,shape=[-1,sequence_length,num_filters],name="poolreshape-%s" % filter_size)
-                pooled_outputs_network.append(poolnetwork2)
+                pooled_outputs.append(poolnetwork2)
 
         # Combine all the pooled features
-        self.h_pool_network=tl.layers.ConcatLayer(layer=pooled_outputs_network,concat_dim=2)
+        self.h_pool_network=tl.layers.ConcatLayer(layer=pooled_outputs,concat_dim=2)
         self.grunetwork=tl.layers.RNNLayer(
             layer=self.h_pool_network,
             cell_fn=tf.nn.rnn_cell.GRUCell,
