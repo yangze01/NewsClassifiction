@@ -54,17 +54,12 @@ def load_data_and_labels():
 
     x_text = get_json_data(BasePath + "/jsonfile/title_courpus.json")[0:]
     y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:]
-    y = list()
-    tmp_y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
-    for tmp_num in tmp_y:
-        tmp = np.zeros(12)
-        tmp[tmp_num] = 1
-        # print(tmp)
-        y.append(tmp)
+    
+    labels = np.array([cate_dict[tmp.encode("utf8")] for tmp in y_text])
+    label_reform = (np.arange(len(cate_dict)) == labels[:,None]).astype(np.float32)
+
     x_ret = [' '.join(cut_sen) for cut_sen in x_text]
-    print("!~!~!~!~!~!~!~!~!~!~!~!~!~!~!")
-    print(x_ret[0])
-    return [x_ret,np.array(y)]
+    return [x_ret,label_reform]
 
 
 def batch_iter(data, batch_size, num_epochs, shuffle=True):
@@ -148,6 +143,7 @@ def add_unknown_words(word_vecs, vocab, k=300):
 
 if __name__ == "__main__":
     x,y = load_data_and_labels()
+    print(y[3])
     # print(x[0])
 
     # positive_examples = list(open(BasePath + "/jsonfile/courpus.json", "r").readlines())
