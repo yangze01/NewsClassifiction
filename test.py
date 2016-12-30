@@ -1,29 +1,81 @@
-#coding=utf-8
+# coding=utf-8
 from __future__ import division
-import sys
-import math
+import tensorflow as tf
 import numpy as np
+import os
+import time
+import datetime
+import gensim
+import data_helpers
+from textcnnModel import TextCNN
+from tensorflow.contrib import learn
+import sys
+import json
 reload(sys)
-sys.setdefaultencoding('utf8')
+BasePath = sys.path[0]
+
+# print(BasePath)
+# logging.getLogger().setLevel(logging.INFO)
+
+def get_json_data(userdir):
+    readf = open(userdir,'r')
+    json_data = readf.read()
+    readf.close()
+    decode_json = json.loads(json_data)
+    return decode_json
+
+def save2json(userdir,data2save):
+    encode_json = json.dumps(data2save)
+    writef = open(userdir,'w')
+    writef.write(encode_json)
+    writef.close()
 
 if __name__ == "__main__":
-    a = [0,0,0,1,0,0]
-    b = np.array(a)
-    print(b)
-    c = np.argmax(b)
-    print(c)
+    # Load data
+    print("Loading data...")
+    x_text, y = data_helpers.load_data_and_labels()
+
+    # Build vocabulary
+    max_document_length = max([len(x.split(" ")) for x in x_text])
+    print("~_~$!$@^&!*~!$%~^~&!*@(((~!~^%!^~!%^~%~^~%)))")
+    print("max_document_length is :")
+    print(max_document_length)
+    vocab_processor = learn.preprocessing.VocabularyProcessor(max_document_length)
+    x = np.array(list(vocab_processor.fit_transform(x_text)))
+    print(x[1])
+    title_fname = BasePath + "/jsonfile/title_Word2Vec"
+    model = gensim.models.Word2Vec.load(title_fname)
 
 
 
+############################################################################
+    # test_tf = tf.random_uniform([10,300], -1.0, 1.0)
+    # # test_zeros = tf.zeros([300])
+    # print("________________________test_tf___________________________")
+    # print(test_tf[0])
+    # sess = tf.Session()
+    # print(len(sess.run(test_tf[0])))
+    #
+    # a = list(np.zeros(300,dtype='float32'))
+    # # print(a)
+    # IdVec.append(a)
+    # tmp = tf.constant(IdVec)
+    # print(len(sess.run(tmp[0])))
+    # # sess = tf.Session()
+    # # print sess.run(tmp)
+############################################################################
 
-
-
-
-
-
-
-
-
+    FileIdVec = BasePath + "/jsonfile/IdVec"
+    IdVec = list()
+    # print(IdVec)
+    # print(model[vocab_processor.vocabulary_.reverse(1)].dtype)
+    for id in range(1,len(vocab_processor.vocabulary_)):
+        print(id)
+        IdVec.append(list(model[vocab_processor.vocabulary_.reverse(id)]))
+    sess = tf.Session()
+    tmp = tf.constant(IdVec)
+    print(len(sess.run(tmp[0])))
+    print sess.run(tmp[0])
 
 
 

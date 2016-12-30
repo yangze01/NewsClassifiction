@@ -1,18 +1,17 @@
 # coding=utf-8
-import sys
-import itertools
-import logging
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-import gensim
-from collections import Counter
-import cPickle
 import os
-import json
-import numpy as np
 import sys
-BasePath = sys.path[0]
 reload(sys)
+import json
+import gensim
+import cPickle
+import logging
+import itertools
+import numpy as np
+BasePath = sys.path[0]
 sys.setdefaultencoding('utf8')
+from collections import Counter
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 def get_json_data(userdir):
     readf = open(userdir,'r')
@@ -62,71 +61,15 @@ def load_data_and_labels():
         tmp[tmp_num] = 1
         # print(tmp)
         y.append(tmp)
+    x_ret = [' '.join(cut_sen) for cut_sen in x_text]
+    print("!~!~!~!~!~!~!~!~!~!~!~!~!~!~!")
+    print(x_ret[0])
+    return [x_ret,np.array(y)]
 
-    return [x_text,np.array(y)]
 
-
-def load_vocab(sen_word):
-    vocab = []
-    for word_list in sen_word:
-        # print(word_list)
-        vocab.extend(word_list)
-    vocab = set(vocab)
-    return vocab
-
-def load_bin_vec(fname, vocab):
+def batch_iter(data, batch_size, num_epochs, shuffle=True):
     """
-        加载300*1 word2vec from my model
-        个人感觉原函数有点奇怪，之后可以修改
-    """
-    word_vecs = {}
-    with open(fname,"rb") as f:
-        header = f.readline()
-        vocab_size,layer1_size =map(int,header.split())#???map是什么意思
-        print(vocab_size,layer1_size)
-        binary_len = np.dtype('float32').itemsize * layer1_size
-        for line in xrange(vocab_size):
-            word = []
-            while True:
-                ch = f.read(1)
-                if ch == ' ':
-                    word = ''.join(word)
-                    break
-                if ch !='\n':
-                    word.append(ch)
-            if word in vocab:
-                word_vecs[word] = np.fromstring(f.read(f.read(binary_len),dtype = 'float32'))
-            else:
-                f.read(binary_len)
-    return word_vecs
-
-def get_W(word_vecs, k = 300):
-    """
-        Get word matrix. W[i] is the vector for word indexed by i
-        把单词建成索引进行查找，问：它和直接查找词区别在哪？
-    """
-    vocab_size = len(word_vecs)
-    word_idx_map = dict()
-    W = np.zeros(shape = (vocab_size + 1,k),dtype = 'float32')
-    W[0] = np.zeros(k,dtype = 'float32')
-    i = 1
-    for word in word_vecs:
-        W[i] = word_vecs[word]
-        word_idx_map[word] = i
-    return W,word_idx_map
-
-def add_unknown_words(word_vecs,vocab,k=300):
-    """
-        设置未知词的词向量
-    """
-    for word in vocab:
-        if word not in word_vecs:
-            word_vecs[word] = np.random(-0.25,0.25,k)
-    return word_vecs
-
-def batch_iter(data,batch_size, num_epochs, shuffle = True):
-    """
-        Generates a batch iterator for a dataset
+    Generates a batch iterator for a dataset.
     """
     data = np.array(data)
     data_size = len(data)
@@ -136,96 +79,87 @@ def batch_iter(data,batch_size, num_epochs, shuffle = True):
         if shuffle:
             shuffle_indices = np.random.permutation(np.arange(data_size))
             shuffled_data = data[shuffle_indices]
-            # shuffled_data=np.random.permutation(data)
         else:
             shuffled_data = data
         for batch_num in range(num_batches_per_epoch):
             start_index = batch_num * batch_size
             end_index = min((batch_num + 1) * batch_size, data_size)
-            yield shuffled_data[start_index:end_index] # yield
+            yield shuffled_data[start_index:end_index]
+def load_vocab(sentences):
+    vocab=[]
+    for sentence in sentences:
+        vocab.extend(sentence.split())
+    vocab=set(vocab)
+    return vocab
 
-def get_predict_data():
+def load_bin_vec(fname, vocab):
     """
-        加载数据和标签
+    Loads 300x1 word vecs from Google (Mikolov) word2vec
     """
-    cate_dict = {'股市':0,'财经':1,'国际':2,'科技':3,'军事':4,'社会':5,'体育':6,'国内':7,'美股':8,'娱乐':9,'其他':10}
-
-    x_text = get_json_data(BasePath + "/jsonfile/title_courpus.json")[0:2]
-    y_text = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2]
-    y = list()
-    tmp_y = [cate_dict[tmp.encode("utf8")] for tmp in y_text]
-    for tmp_num in tmp_y:
-        tmp = np.zeros(12)
-        tmp[tmp_num] = 1
-        # print(tmp)
-        y.append(tmp)
-
-    return [x_text,np.array(y)]
-
-def load_train_dev_data():
-    print("Loading data...")
-    x_text,y = load_data_and_labels()
-    #Randomly shuffle data
-    np.random.seed(10)
-    shuffle_indices = np.random.permutation(np.arange(len(y)))
-    x_text = np.array(x_text)
-    print(type(x_text[0]))
-    x_text = x_text[shuffle_indices]
-    y_shuffled = y[shuffle_indices]
-    max_sentence_length = max([len(x) for x in x_text])
-    print("_________________max_sentence_length_________________________")
-    print(max_sentence_length)
-    # Load set word
-    word_set = load_vocab(x_text)
-    # Load word2vec
-    if os.path.exists(BasePath + "/jsonfile/title_Word2Vec"):
-        # wor2vec_model = cPickle.load(open(BasePath + "/jsonfile/Word2Vec","rb"))
-        fname = BasePath + "/jsonfile/title_Word2Vec"
-        wor2vec_model = gensim.models.Word2Vec.load(fname)
-        wor2vec_model = add_unknown_words(wor2vec_model, word_set, 300)
-
-    else:
-        wor2vec_model = load_bin_vec(BasePath + "GoogleNews-vectors-negative300.bin", word_set)
-        wor2vec_model = add_unknown_words(wor2vec_model, word_set, 300)
-        cPickle.dump(wor2vec_model, open(BasePath + "/jsonfile/title_Word2Vec", "wb"))
-    x = []
-    for words in x_text:
-        l = len(words)
-        sentence = []
-        for i, word in enumerate(words):
-            sentence.append(wor2vec_model[word])
-        zeros_list = [0] * 300
-        for j in range(max_sentence_length - i - 1):
-            sentence.append(zeros_list)
-        x.append(sentence)
-    x = np.array(x)
-    # Split train/test set
-    # TODO: This is very crude, should use cross-validation
-
-    x_train, x_dev = x[:-1000], x[-1000:]
-    # print(x_train)
-    y_train, y_dev = y_shuffled[:-1000], y_shuffled[-1000:]
-    print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
-    print(type(x_train),type(y_train))
-    return x_train,y_train,x_dev,y_dev
+    word_vecs = {}
+    with open(fname, "rb") as f:
+        header = f.readline()
+        vocab_size, layer1_size = map(int, header.split())
+        print(vocab_size,layer1_size)
+        binary_len = np.dtype('float32').itemsize * layer1_size
+        for line in xrange(vocab_size):
+            word = []
+            while True:
+                ch = f.read(1)
+                if ch == ' ':
+                    word = ''.join(word)
+                    break
+                if ch != '\n':
+                    word.append(ch)
+            if word in vocab:
+                word_vecs[word] = np.fromstring(f.read(binary_len), dtype='float32')
+            else:
+                f.read(binary_len)
+    return word_vecs
 
 
 
+def get_W(word_vecs, k=300):
+    """
+    Get word matrix. W[i] is the vector for word indexed by i
+    """
 
+    vocab_size = len(word_vecs)
+    word_idx_map = dict()
+    W = np.zeros(shape=(vocab_size + 1, k), dtype='float32')
+    W[0] = np.zeros(k, dtype='float32')
+    i = 1
 
+    for word in word_vecs:
+        W[i] = word_vecs[word]
+        word_idx_map[word] = i
+        i += 1
+    return W, word_idx_map
 
+def add_unknown_words(word_vecs, vocab, k=300):
+    """
+    For words that occur in at least min_df documents, create a separate word vector.
+    0.25 is chosen so the unknown vectors have (approximately) same variance as pre-trained ones
+    """
+    for word in vocab:
+        if word not in word_vecs:
+            word_vecs[word] = np.random.uniform(-0.25, 0.25, k)
+    return word_vecs
 
 if __name__ == "__main__":
+    x,y = load_data_and_labels()
+    # print(x[0])
+
     # positive_examples = list(open(BasePath + "/jsonfile/courpus.json", "r").readlines())
-
-    x_text = get_json_data(BasePath + "/jsonfile/courpus.json")[0:2]
-    y = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2]
-    # print(type(x_text))
-    # print(type(y))
-    # print(cate_dict[y.encode('utf8')])
-
-    get_predict_data(x_text,y)
-    # x_train,y_train,x_dev,y_dev = load_train_dev_data()
-    # print(x_train[0])
-    # print(y_train[0])
-    # print(type(x_train[0][1]))
+    #
+    # x_text = get_json_data(BasePath + "/jsonfile/courpus.json")[0:2]
+    # y = get_json_data(BasePath + "/jsonfile/cate_list.json")[0:2]
+    # # print(type(x_text))
+    # # print(type(y))
+    # # print(cate_dict[y.encode('utf8')])
+    #
+    # get_predict_data(x_text,y)
+    # # x_train,y_train,x_dev,y_dev = load_train_dev_data()
+    # # print(x_train[0])
+    # # print(y_train[0])
+    # # print(type(x_train[0][1]))

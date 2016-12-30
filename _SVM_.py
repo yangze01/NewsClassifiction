@@ -26,13 +26,16 @@ if __name__ == "__main__":
     train_file = BasePath + '/train.txt'
     test_file = BasePath + '/test.txt'
     model_file = BasePath + '/svm_model'
+
     y_train,x_train = svm_read_problem(train_file)
     print(x_train[0])
     y_test,x_test = svm_read_problem(test_file)
     print("load data finished")
+
     svm_model = svm_train(y_train,x_train,'-t 3 -c 5 -h 0')
     svm_save_model(model_file,svm_model)
     print(y_test)
+
     mymodel = svm_load_model(model_file)
     p_label, p_acc, p_val = svm_predict(y_test, x_test, mymodel)
     print(p_label,p_acc,p_val)
